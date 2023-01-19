@@ -1,6 +1,5 @@
 class EventEmitter {
     handlers = {};
-    handlersCapture = {}
 
     constructor(parent) {
         this.parent = parent;
@@ -14,26 +13,25 @@ class EventEmitter {
     }
 
     addHandler(eventName, handler, capture = false) {
-        const handlers = capture ? this.handlersCapture : this.handlers;
+        const handlers = this.handlers
         if (handlers[eventName]) {
-            handlers[eventName].push(handler);
+            handlers[eventName].push({handler, capture});
             return handler;
         }
-        handlers[eventName] = [handler];
+        handlers[eventName] = [{handler, capture}];
         return handler;
 
     }
     off(eventName, handler) {
         if (handler !== undefined) {
-            this.handlers[eventName] =  this.handlers[eventName].filter(item => item !== handler);
+            this.handlers[eventName] =  this.handlers[eventName].filter(item => item.handler !== handler);
             return;
         }
         this.handlers[eventName] = [];
 
     }
     emit(eventName) {
-        this.handlers[eventName].forEach(handler => handler());
-        this.handlersCapture[eventName].forEach(handler => handler())
+        this.handlers[eventName].forEach(handler => handler.handler());
     }
 }
 
