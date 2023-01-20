@@ -2,7 +2,10 @@ class EventEmitter {
     handlers = {};
 
     constructor(parent) {
-        this.parent = parent;
+        if (parent) {
+            this.parent = parent;
+            parent.child = this;
+        }
         this.on = (eventName, handler) => {
             return this.addHandler(eventName, handler);
         }
