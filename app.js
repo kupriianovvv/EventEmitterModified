@@ -3,13 +3,12 @@ class EventEmitter {
 
     constructor(parent) {
         this.parent = parent;
+        this.on = (eventName, handler) => {
+            return this.addHandler(eventName, handler);
+        }
         this.on.capture = (eventName, handler) => {
             this.addHandler(eventName, handler, true);
         }
-    }
-
-    on(eventName, handler) {
-        return this.addHandler(eventName, handler);
     }
 
     addHandler(eventName, handler, capture = false) {
@@ -32,10 +31,15 @@ class EventEmitter {
     }
     emit(eventName) {
         this.handlers[eventName].forEach(handler => handler.handler());
+        if (this.parent) {
+            this.parent.emit(eventName);
+        }
     }
 }
 
+
 const emitter = new EventEmitter();
+const childEmitter = new EventEmitter(emitter);
 
 emitter.on("hoba", () => console.log("bubble hoba1"));
 emitter.on("hoba", () => console.log("bubble hoba2"));
@@ -45,4 +49,7 @@ emitter.on.capture("hoba", () => console.log("capture hoba1"));
 emitter.on.capture("hoba", () => console.log("capture hoba2"));
 emitter.on.capture("heya", () => console.log("capture heya"));
 
-emitter.emit("hoba")
+//emitter.emit("hoba")
+
+childEmitter.emit("hoba")
+console.log("end")
