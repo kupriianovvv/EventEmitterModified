@@ -37,6 +37,7 @@ class EventEmitter {
         const topEmitter = this.getTopEmitter(this);
 
         this.capture(topEmitter, targetEmitter, eventName);
+        this.bubble(topEmitter, targetEmitter, eventName);
     }
 
     getTopEmitter(currentEmitter) {
@@ -45,6 +46,19 @@ class EventEmitter {
             topEmitter = topEmitter.parent;
         }
         return topEmitter;
+    }
+
+    bubble(topEmitter, targetEmitter, eventName) {
+        let currentEmitter = targetEmitter;
+        while (currentEmitter) {
+            const handlers = currentEmitter.handlers[eventName]
+            if (handlers && handlers.length > 0) {
+                handlers.forEach(handler => {
+                    if (!handler.capture) handler.handler();
+                })
+            }
+            currentEmitter = currentEmitter.parent;
+        }
     }
     
     capture(topEmitter, targetEmitter, eventName) {
