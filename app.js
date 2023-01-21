@@ -33,9 +33,30 @@ class EventEmitter {
 
     }
     emit(eventName) {
-        this.handlers[eventName].forEach(handler => handler.handler());
-        if (this.parent) {
-            this.parent.emit(eventName);
+        const targetEmitter = this;
+        const topEmitter = this.getTopEmitter(this);
+
+        this.capture(topEmitter, targetEmitter, eventName);
+    }
+
+    getTopEmitter(currentEmitter) {
+        let topEmitter = currentEmitter;
+        while (topEmitter.parent) {
+            topEmitter = topEmitter.parent;
+        }
+        return topEmitter;
+    }
+    
+    capture(topEmitter, targetEmitter, eventName) {
+        let currentEmitter = topEmitter;
+        while (currentEmitter && currentEmitter.parent !== targetEmitter) {
+            const handlers = currentEmitter.handlers[eventName]
+            if (handlers && handlers.length > 0) {
+                handlers.forEach(handler => {
+                    if (handler.capture) handler.handler();
+                })
+            }
+            currentEmitter = currentEmitter.child;
         }
     }
 }
@@ -54,5 +75,4 @@ emitter.on.capture("heya", () => console.log("capture heya"));
 
 //emitter.emit("hoba")
 
-childEmitter.emit("hoba")
-console.log("end")
+childEmitter.emit("hoba");
