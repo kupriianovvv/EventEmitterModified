@@ -76,17 +76,32 @@ class EventEmitter {
 }
 
 
-const emitter = new EventEmitter();
-const childEmitter = new EventEmitter(emitter);
+const parent = new EventEmitter();
+const ev = new EventEmitter(parent);
+const grandSon = new EventEmitter(ev);
 
-emitter.on("hoba", () => console.log("bubble hoba1"));
-emitter.on("hoba", () => console.log("bubble hoba2"));
-emitter.on("heya", () => console.log("bubble heya"));
+parent.on.capture('foo', (e) => {
+  console.log('parent foo capture');
+});
 
-emitter.on.capture("hoba", () => console.log("capture hoba1"));
-emitter.on.capture("hoba", () => console.log("capture hoba2"));
-emitter.on.capture("heya", () => console.log("capture heya"));
+ev.on.capture('foo', (e) => {
+  console.log('son foo capture');
+});
 
-//emitter.emit("hoba")
+ev.on('foo', (e) => {
+  console.log('son foo bubbling');
+});
 
-childEmitter.emit("hoba");
+parent.on('foo', (e) => {
+  console.log('parent foo bubbling');
+});
+
+grandSon.on.capture('foo', (e) => {
+    console.log('grandson foo capture')
+})
+
+grandSon.on('foo', (e) => {
+    console.log('grandson foo bubbling')
+})
+
+grandSon.emit('foo');
